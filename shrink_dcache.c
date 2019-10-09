@@ -17,8 +17,6 @@ static struct dentry *debugfs_file;
 
 static int try_shirink_dcache(void)
 {
-        struct super_block *sb;
-        struct shrink_control sc;
         struct path path;
         struct dentry *dentry;
 
@@ -29,31 +27,8 @@ static int try_shirink_dcache(void)
           return err;
         }
 
-        mntget(path.mnt);
-        dget(path.dentry);
-
-        dentry = path.dentry;
-
-        // TODO: lock?
-        sb     = dentry->d_sb;
-
-        printk(KERN_INFO "%s %s", sb->s_id, sb->s_subtype);
-
-        sc.nr_to_scan = 100;
-        sc.gfp_mask   = GFP_KERNEL;
-
-        shrink_dcache_parent(path.dentry);
-
-        mntput(path.mnt);
-        dput(path.dentry);
-
-        // ( > < ;)
-        // shrink_dcache_for_umount(sb);
-        // shrink_dcache_sb(sb);
-        //for_each_online_node(nid) { 
-        //   sc.nid = nid;
-        //    prune_icache_sb(sb, &sc);
-        //}
+	dentry_unhash(path.dentry);
+        path_put(path);
 
         return 0;
 }
@@ -69,7 +44,7 @@ static ssize_t shrink_dcache_write(struct file *file, const char __user *buf,
            pr_info(">> 1");
            return ret;
         }
-         
+
         buffer[ret] = '\0';
         if (buffer[ret-1] == '\n') 
           buffer[ret-1] = '\0';
