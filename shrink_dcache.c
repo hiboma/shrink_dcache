@@ -17,18 +17,15 @@ static struct dentry *debugfs_file;
 
 static int try_shirink_dcache(void)
 {
-        struct path path;
-        struct dentry *dentry;
-
         int err;
+        struct path path;
 
-        err = kern_path(buffer, 0, &path);
-        if (err) {
-          return err;
-        }
+	err = kern_path(buffer, 0, &path);
+	if (err)
+		return err;
 
 	dentry_unhash(path.dentry);
-        path_put(path);
+	path_put(&path);
 
         return 0;
 }
