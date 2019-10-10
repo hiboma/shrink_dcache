@@ -13,7 +13,7 @@ MODULE_DESCRIPTION("This module is PoC");
 
 static struct dentry *debugfs_file;
 
-static int try_shirink_dcache(void)
+static int try_shirink_dcache(const char *buffer)
 {
         int err;
         struct path path;
