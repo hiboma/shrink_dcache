@@ -11,8 +11,6 @@ MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("hiboma <hiroyan@gmail.com>");
 MODULE_DESCRIPTION("This module is PoC");
 
-// TODO: mutex ?
-static char buffer[PATH_MAX+1];
 static struct dentry *debugfs_file;
 
 static int try_shirink_dcache(void)
@@ -35,6 +33,7 @@ static ssize_t shrink_dcache_write(struct file *file, const char __user *buf,
 {
         int error;
         ssize_t ret;
+        char buffer[128];
 
         ret = simple_write_to_buffer(buffer, sizeof(buffer), pos, buf, count);
         if (ret < 0) { 
@@ -47,7 +46,7 @@ static ssize_t shrink_dcache_write(struct file *file, const char __user *buf,
           buffer[ret-1] = '\0';
 
         pr_info("path is %s", buffer);
-        error = try_shirink_dcache();
+        error = try_shirink_dcache(buffer);
         if (error) {
            pr_info(">> 3");
             return -error;
