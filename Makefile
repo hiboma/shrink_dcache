@@ -7,3 +7,16 @@ insmod:
 	insmod shrink_dcache.ko
 rmmod:
 	rmmod shrink_dcache.ko
+
+disk:
+	dd if=/dev/zero of=/tmp/disk bs=1M count=1000
+	mkfs.xfs -f /tmp/disk
+
+mount:
+	mount -o loop -t xfs /tmp/disk /mnt
+
+umount:
+	umount /mnt
+
+romount:
+	mount -o loop -r -t xfs /tmp/disk /mnt
