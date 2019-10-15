@@ -43,21 +43,6 @@ static int try_shrink_super_block_cache(const char *buffer)
         return 0;
 }
 
-static int try_shirink_dcache(const char *buffer)
-{
-	int err;
-	struct path path;
-
-	err = kern_path(buffer, 0, &path);
-	if (err)
-		return err;
-
-	shrink_dcache_parent(path.dentry);
-	path_put(&path);
-
-	return 0;
-}
-
 static ssize_t shrink_super_block_cache(struct file *file, const char __user *buf,
 			 size_t count, loff_t *pos)
 {
@@ -78,6 +63,25 @@ static ssize_t shrink_super_block_cache(struct file *file, const char __user *bu
 		return error;
 
 	return ret;
+}
+
+static const struct file_operations sb_cache_fops = {
+	.write = shrink_super_block_cache,
+};
+
+static int try_shirink_dcache(const char *buffer)
+{
+	int err;
+	struct path path;
+
+	err = kern_path(buffer, 0, &path);
+	if (err)
+		return err;
+
+	shrink_dcache_parent(path.dentry);
+	path_put(&path);
+
+	return 0;
 }
 
 static ssize_t shrink_dcache_write(struct file *file, const char __user *buf,
@@ -104,10 +108,6 @@ static ssize_t shrink_dcache_write(struct file *file, const char __user *buf,
 
 static const struct file_operations dcache_fops = {
 	.write = shrink_dcache_write,
-};
-
-static const struct file_operations sb_cache_fops = {
-	.write = shrink_super_block_cache,
 };
 
 static int __init shrink_dcache_init(void)
